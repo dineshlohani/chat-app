@@ -15,7 +15,7 @@ const Homepage = () => {
       borderRadious="1g"
       borderWidth="1px"
     >
-      <Text fontSize={'30'} fontFamily={'work sans'} color={'red'} marginLeft={'150'}><b>Talk-A-Tive</b></Text>
+      <Text fontSize={'30'} fontFamily={'work sans'} color={'red'} marginLeft={'150'}><b>BIBEBOO</b></Text>
     </Box>
     <Box bg="white" w="100%" p={4} borderRadius="lg" borderWidth="1px">
    <Tabs isFitted variant="soft-rounded">

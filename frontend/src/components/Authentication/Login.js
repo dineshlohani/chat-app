@@ -1,71 +1,115 @@
-import React from 'react'
-import { FormControl, FormLabel, VStack, Input, InputGroup, InputRightElement, Button, colorScheme } from '@chakra-ui/react';
+import React, { useState } from "react";
+import {
+  FormControl,
+  FormLabel,
+  VStack,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Button,
+} from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/toast";
+import axios from "axios";
+import { useHistory } from "react-router-dom"; // Import useHistory from 'react-router-dom'
 
-import { useState } from "react";
-function Login() {
+const Login = () => {
+  const [show, setShow] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); // Change Loading to loading (camelCase)
 
- const [show, setShow] = useState(false);
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
-   
-    const handelClick = () => setShow(!show);
+  const toast = useToast();
+  const history = useHistory();
 
-   
-    const submitHandler = () => { };
- 
-    return <VStack spacing= '10px' color='black' >
-       
-         <FormControl id="Email" isRequired >
-            <FormLabel>Email</FormLabel>
-                <input  style={{backgroundColor:'white',width:'100%'}}
-                    placeholder='Enter Your Email'
-                    onChange={(e) => setEmail(e.target.value)} 
-                />
-            
-        </FormControl>
-         <FormControl id="Password" isRequired>
-            <FormLabel >Password</FormLabel>
-            <InputGroup >
-                
-                        <input style={{backgroundColor:'white',width:'100%'}}
-                type={show? "text":'password' }
-                    placeholder='Enter Your Password'
-                    onChange={(e) => setPassword(e.target.value)} 
-                    
-                />
-                <InputRightElement Element width="4.5rem">
-                    <Button h="1rem" size="sn" onClick={handelClick} marginTop={-4}>
-                        {show ? "hide":"show"}
-                    </Button>
-                </InputRightElement>
-            </InputGroup>
-        </FormControl>
-            
-      
-        <Button
-            variant='solid'
-            colorScheme='blue'
-            style={{width:'100%'}}
-           onClick={submitHandler}
-           
-        >
-           <b>Login</b> 
-        </Button>
-           
-        <Button
-            variant='solid'
-            colorScheme='red'
-            style={{width:'100%'}}
-            onClick={() => {
-                setEmail("guest@example.com");
-                setPassword("123456");
-            }}
-        >
-           <b>Get Guest User Credentials</b> 
-        </Button>
-        
-        
-  </VStack>
-}
+  const handleClick = () => setShow(!show);
 
-export default Login
+  const submitHandler = async () => {
+    setLoading(true);
+    if (!email || !password) {
+      toast({
+        title: "Please fill all the fields",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const { data } = await axios.post(
+        // Destructure data directly
+        "/api/user/login",
+        { email, password },
+        config
+      );
+      toast({
+        title: "Login Successfully",
+        status: "success", // Correct status name
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setLoading(false);
+      history.push("/Chats"); // Redirect to '/Chats' after successful login
+    } catch (error) {
+      toast({
+        title: "Error!",
+        description: error.response.data.message,
+        status: "error", // Correct status name
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
+  };
+
+  return (
+    <VStack spacing="10px" color="black">
+      <FormControl id="Email" isRequired>
+        <FormLabel>Email</FormLabel>
+        <Input
+          style={{ backgroundColor: "white", width: "100%" }}
+          placeholder="Enter Your Email"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </FormControl>
+      <FormControl id="Password" isRequired>
+        <FormLabel>Password</FormLabel>
+        <InputGroup>
+          <Input
+            style={{ backgroundColor: "white", width: "100%" }}
+            type={show ? "text" : "password"}
+            placeholder="Enter Your Password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <InputRightElement width="4.5rem">
+            <Button h="1rem" size="sm" onClick={handleClick} marginTop="-6px">
+              {show ? "Hide" : "Show"}
+            </Button>
+          </InputRightElement>
+        </InputGroup>
+      </FormControl>
+
+      <Button
+        variant="solid"
+        colorScheme="blue"
+        style={{ width: "100%" }}
+        onClick={submitHandler}
+        isLoading={loading} // Use camelCase for isLoading prop
+      >
+        <b>Login</b>
+      </Button>
+    </VStack>
+  );
+};
+
+export default Login;
